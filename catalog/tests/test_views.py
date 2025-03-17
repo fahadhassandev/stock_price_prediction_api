@@ -40,6 +40,31 @@ class CatalogAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Category.objects.count(), 2)
 
+    def test_get_category_list(self):
+        url = reverse('catalog:category-list-create')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_get_category_detail(self):
+        url = reverse('catalog:category-detail', args=[self.category.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'Test Category')
+
+    def test_update_category(self):
+        url = reverse('catalog:category-detail', args=[self.category.id])
+        data = {'name': 'Updated Category', 'slug': 'updated-category'}
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'Updated Category')
+
+    def test_delete_category(self):
+        url = reverse('catalog:category-detail', args=[self.category.id])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Category.objects.count(), 0)
+
     def test_create_product(self):
         url = reverse('catalog:product-list-create')
         data = {
@@ -52,3 +77,35 @@ class CatalogAPITests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Product.objects.count(), 2)
+
+    def test_get_product_list(self):
+        url = reverse('catalog:product-list-create')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_get_product_detail(self):
+        url = reverse('catalog:product-detail', args=[self.product.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'Test Product')
+
+    def test_update_product(self):
+        url = reverse('catalog:product-detail', args=[self.product.id])
+        data = {'name': 'Updated Product'}
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'Updated Product')
+
+    def test_get_inventory(self):
+        url = reverse('catalog:inventory-detail', args=[self.product.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['quantity'], 10)
+
+    def test_update_inventory(self):
+        url = reverse('catalog:inventory-update', args=[self.product.id])
+        data = {'quantity': 20}
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['quantity'], 20)
