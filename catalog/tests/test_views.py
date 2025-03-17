@@ -6,14 +6,12 @@ from catalog.models import Category, Product, Inventory
 
 class CatalogAPITests(APITestCase):
     def setUp(self):
-        # Create test category
         self.category = Category.objects.create(
             name="Test Category",
             description="Test Description",
             slug="test-category"
         )
 
-        # Create test product
         self.product = Product.objects.create(
             name="Test Product",
             description="Test Description",
@@ -22,12 +20,30 @@ class CatalogAPITests(APITestCase):
             category=self.category
         )
 
-        # Create test inventory
         self.inventory = Inventory.objects.create(
             product=self.product,
             quantity=10,
             low_stock_threshold=5
         )
+
+    # Add negative test cases to improve coverage
+    def test_create_category_invalid_data(self):
+        url = reverse('catalog:category-list-create')
+        data = {'name': ''}  # Invalid data
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_product_invalid_data(self):
+        url = reverse('catalog:product-detail', args=[self.product.id])
+        data = {'regular_price': -10}  # Invalid price
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_inventory_invalid_quantity(self):
+        url = reverse('catalog:inventory-update', args=[self.product.id])
+        data = {'quantity': -1}  # Invalid quantity
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_category(self):
         url = reverse('catalog:category-list-create')

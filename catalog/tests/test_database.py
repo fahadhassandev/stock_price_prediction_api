@@ -6,7 +6,7 @@ class DatabaseConnectionTest(TestCase):
     def test_database_connection(self):
         db_conn = connections['default']
         try:
-            c = db_conn.cursor()
-            self.assertTrue(True)  # Connection successful
+            db_conn.cursor()
+            self.assertIsNotNone(db_conn)
         except OperationalError:
             self.fail("Database connection failed")
